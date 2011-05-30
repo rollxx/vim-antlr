@@ -72,9 +72,11 @@ if exists('target_languages[-1]')
   let syntax_file = findfile('syntax/' . lang . '.vim', &rtp, 1)
   if syntax_file != ''
     " if a valid syntax file was found only
+    let b:current_syntax = ''
+    unlet b:current_syntax
     let region_name = '@' . lang . 'Language'
     exe 'syntax include ' . region_name . ' ' . syntax_file
-    exe 'syntax region ' . lang . ' start="{" end="}" contains=' . region_name
+    exe 'syntax region ' . lang . ' start="{" end="}" keepend contains=' . region_name
   endif
 endif
 
