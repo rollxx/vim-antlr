@@ -61,4 +61,21 @@ if version >= 508
   delcommand HiLink
 endif
 
+" try to figure out the target language
+let target_languages = []
+let buffer = join(getline(1, line('$')), "\n")
+let antlr_options = matchstr(buffer, '\m\(\_s\|;\)options\_s\+{\_.\{-\}}')
+call substitute(antlr_options, '\mlanguage=''\?\(.\{-\}\)''\?;', '\=add(target_languages, tolower(submatch(1)))', 'g')
+if exists('target_languages[-1]')
+  " the last defined target language takes precendece
+  let lang=target_languages[-1]
+  let syntax_file = findfile('syntax/' . lang . '.vim', &rtp, 1)
+  if syntax_file != ''
+    " if a valid syntax file was found only
+    let region_name = '@' . lang . 'Language'
+    exe 'syntax include ' . region_name . ' ' . syntax_file
+    exe 'syntax region ' . lang . ' start="{" end="}" contains=' . region_name
+  endif
+endif
+
 let b:current_syntax = "antlr3"
