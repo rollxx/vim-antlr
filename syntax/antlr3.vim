@@ -63,9 +63,17 @@ endif
 
 " try to figure out the target language
 let target_languages = []
-let buffer = join(getline(1, line('$')), "\n")
-let antlr_options = matchstr(buffer, '\m\(\_s\|;\)options\_s\+{\_.\{-\}}')
-call substitute(antlr_options, '\mlanguage\_s*=\_s*''\?\(.\{-\}\)''\?\_s*;', '\=add(target_languages, tolower(submatch(1)))', 'g')
+" can we figure out from the file name
+let extensions = split(expand('%:t'), '\.')
+if len(extensions) >= 3
+  " great.. the target language was provided via file name
+  call add(target_languages, tolower(extensions[-2]))
+else
+  " no multiple extensions... have to figure out from the content
+  let buffer = join(getline(1, line('$')), "\n")
+  let antlr_options = matchstr(buffer, '\m\(\_s\|;\)options\_s\+{\_.\{-\}}')
+  call substitute(antlr_options, '\mlanguage\_s*=\_s*''\?\(.\{-\}\)''\?\_s*;', '\=add(target_languages, tolower(submatch(1)))', 'g')
+endif
 if exists('target_languages[-1]')
   " the last defined target language takes precendece
   let lang=target_languages[-1]
